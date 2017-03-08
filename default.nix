@@ -6,6 +6,12 @@ let
 
     ghcenv = pkgs.haskell.packages.${ghcver};
 
+    packages = ps : with ps; [
+      mtl transformers text syb containers tasty tasty-quickcheck
+    ];
+
+    ghc = pkgs.haskell.packages.${ghcver}.ghcWithPackages packages;
+
 in
 ghcenv.mkDerivation {
 
@@ -16,14 +22,7 @@ ghcenv.mkDerivation {
     isExecutable = false;
     license = stdenv.lib.licenses.unfree;
 
-    buildDepends = with ghcenv ; [
-      haskell-src-meta template-haskell
-      filepath containers text mtl
-      bytestring deepseq system-filepath text-format
-      directory attoparsec mime-types
-      syb parsec process optparse-applicative
-      utf8-string blaze-builder alex happy
-      transformers];
+    buildDepends = [ghc] ++ (packages ghcenv) ;
 
-    doCheck = false;
+    doCheck = true;
 }
